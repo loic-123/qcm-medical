@@ -1,12 +1,13 @@
 """
 Application Streamlit - QCM Médical avec Claude
 Interface interactive pour générer et passer des QCM depuis des cours
+VERSION OPTIMISÉE avec sélecteur de difficulté et feedback rapide
 """
 
 import streamlit as st
 import os
 from utils.document_parser import DocumentParser
-from utils.claude_api import ClaudeQCMGenerator
+from utils.claude_api import ClaudeQCMGenerator  # Version optimisée
 from utils.pdf_export import PDFExporter
 
 
@@ -50,6 +51,16 @@ st.markdown("""
         border-left: 4px solid #dc3545;
         margin: 0.5rem 0;
     }
+    .difficulty-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+    .diff-facile { background-color: #d4edda; color: #155724; }
+    .diff-intermediaire { background-color: #fff3cd; color: #856404; }
+    .diff-difficile { background-color: #f8d7da; color: #721c24; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -72,6 +83,8 @@ def initialize_session_state():
         st.session_state.document_text = None
     if 'document_images' not in st.session_state:
         st.session_state.document_images = None
+    if 'difficulty' not in st.session_state:
+        st.session_state.difficulty = 'intermediaire'
 
 
 def reset_qcm():
@@ -89,7 +102,7 @@ def main():
     
     # En-tête
     st.markdown('<h1 class="main-header">🏥 QCM Médical - EDN</h1>', unsafe_allow_html=True)
-    st.markdown("### Générateur de QCM intelligent avec Claude Haiku 4.5")
+    st.markdown("### Générateur de QCM intelligent avec Claude Haiku 4.5 ⚡")
     
     # Barre latérale - Configuration
     with st.sidebar:
@@ -116,10 +129,11 @@ def main():
         **Fonctionnalités :**
         - 📄 Upload Word/PDF avec images
         - 🤖 10 questions générées par IA
-        - ✅ Feedback immédiat par question
+        - ✅ Feedback immédiat
         - 📊 Récapitulatif personnalisé
         - 📥 Export PDF
         - 🔄 Régénération possible
+        - 🎯 **3 niveaux de difficulté**
         
         **Format :**
         - Plusieurs bonnes réponses possibles
@@ -145,6 +159,45 @@ def main():
     with tab1:
         st.header("📤 Upload de votre cours")
         
+        # Sélecteur de difficulté
+        st.subheader("🎯 Niveau de difficulté des questions")
+        
+        difficulty_col1, difficulty_col2, difficulty_col3 = st.columns(3)
+        
+        with difficulty_col1:
+            if st.button("📗 Facile\n(Révisions de base)", use_container_width=True, 
+                        type="primary" if st.session_state.difficulty == 'facile' else "secondary"):
+                st.session_state.difficulty = 'facile'
+                st.rerun()
+            st.caption("✓ Connaissances fondamentales\n✓ Questions directes\n✓ Idéal pour débuter")
+        
+        with difficulty_col2:
+            if st.button("📘 Intermédiaire\n(Type EDN standard)", use_container_width=True,
+                        type="primary" if st.session_state.difficulty == 'intermediaire' else "secondary"):
+                st.session_state.difficulty = 'intermediaire'
+                st.rerun()
+            st.caption("✓ Raisonnement clinique\n✓ Cas cliniques simples\n✓ Niveau DFASM classique")
+        
+        with difficulty_col3:
+            if st.button("📕 Difficile\n(Préparation intensive)", use_container_width=True,
+                        type="primary" if st.session_state.difficulty == 'difficile' else "secondary"):
+                st.session_state.difficulty = 'difficile'
+                st.rerun()
+            st.caption("✓ Cas complexes\n✓ Pièges subtils\n✓ Expertise avancée")
+        
+        # Badge du niveau sélectionné
+        difficulty_labels = {
+            'facile': ('📗 Facile', 'diff-facile'),
+            'intermediaire': ('📘 Intermédiaire', 'diff-intermediaire'),
+            'difficile': ('📕 Difficile', 'diff-difficile')
+        }
+        
+        label, css_class = difficulty_labels[st.session_state.difficulty]
+        st.markdown(f'<div class="difficulty-badge {css_class}">Niveau sélectionné : {label}</div>', 
+                   unsafe_allow_html=True)
+        
+        st.divider()
+        
         uploaded_file = st.file_uploader(
             "Glissez-déposez votre fichier Word ou PDF",
             type=['docx', 'pdf'],
@@ -167,7 +220,7 @@ def main():
             
             with generate_col1:
                 generate_button = st.button(
-                    "🚀 Générer le QCM (10 questions)",
+                    f"🚀 Générer le QCM (10 questions - {label})",
                     type="primary",
                     use_container_width=True
                 )
@@ -195,12 +248,13 @@ def main():
                         st.error(f"❌ Erreur lors de l'extraction : {e}")
                         return
                 
-                with st.spinner("🤖 Claude génère vos questions... (30-60 secondes)"):
+                with st.spinner(f"🤖 Claude génère vos questions ({label})... (30-60 secondes)"):
                     try:
-                        # Génération des questions
+                        # Génération des questions avec le niveau de difficulté
                         questions = generator.generate_qcm(
                             st.session_state.document_text,
-                            st.session_state.document_images
+                            st.session_state.document_images,
+                            difficulty=st.session_state.difficulty
                         )
                         
                         if not questions or len(questions) == 0:
@@ -221,6 +275,11 @@ def main():
             st.divider()
             st.subheader("📋 Aperçu des questions générées")
             
+            # Badge du niveau
+            label, css_class = difficulty_labels[st.session_state.difficulty]
+            st.markdown(f'<div class="difficulty-badge {css_class}">{label}</div>', 
+                       unsafe_allow_html=True)
+            
             with st.expander("Cliquez pour voir toutes les questions", expanded=False):
                 for i, q in enumerate(st.session_state.questions, 1):
                     st.markdown(f"**Question {i} :** {q['question']}")
@@ -235,6 +294,11 @@ def main():
         
         questions = st.session_state.questions
         current_idx = st.session_state.current_question_index
+        
+        # Badge du niveau
+        label, css_class = difficulty_labels[st.session_state.difficulty]
+        st.markdown(f'<div class="difficulty-badge {css_class}">Mode : {label}</div>', 
+                   unsafe_allow_html=True)
         
         # Barre de progression
         progress = len(st.session_state.submitted_questions) / len(questions)
@@ -322,11 +386,11 @@ def main():
             else:
                 st.markdown('<div class="incorrect-answer">❌ <b>Réponse incomplète ou incorrecte</b></div>', unsafe_allow_html=True)
             
-            # Feedback détaillé
-            with st.spinner("💡 Claude analyse votre réponse..."):
+            # Feedback détaillé (OPTIMISÉ - Plus rapide)
+            with st.spinner("💡 Claude analyse votre réponse (⚡ rapide)..."):
                 feedback = generator.explain_answer(current_question, user_answer)
             
-            st.markdown("### 💡 Explication détaillée")
+            st.markdown("### 💡 Explication")
             st.markdown(feedback)
             
             st.divider()
@@ -349,6 +413,12 @@ def main():
             return
         
         st.header("📊 Récapitulatif de votre session")
+        
+        # Badge du niveau
+        label, css_class = difficulty_labels[st.session_state.difficulty]
+        st.markdown(f'<div class="difficulty-badge {css_class}">Niveau : {label}</div>', 
+                   unsafe_allow_html=True)
+        st.divider()
         
         # Calcul du score
         questions = st.session_state.questions
@@ -439,11 +509,12 @@ def main():
             # Garder le document mais régénérer les questions
             text = st.session_state.document_text
             images = st.session_state.document_images
+            difficulty = st.session_state.difficulty
             
             reset_qcm()
             
             with st.spinner("🤖 Génération d'un nouveau QCM..."):
-                questions = generator.generate_qcm(text, images)
+                questions = generator.generate_qcm(text, images, difficulty=difficulty)
                 st.session_state.questions = questions
             
             st.success("✅ Nouveau QCM généré !")

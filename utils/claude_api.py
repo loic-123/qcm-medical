@@ -1,6 +1,7 @@
 """
 Module de gestion des appels à l'API Claude
 Génération de QCM, feedback et récapitulatif
+VERSION OPTIMISÉE avec sélecteur de difficulté
 """
 
 import json
@@ -21,13 +22,14 @@ class ClaudeQCMGenerator:
         self.client = Anthropic(api_key=api_key)
         self.model = "claude-haiku-4-5"  # Haiku 4.5
     
-    def generate_qcm(self, text: str, images: List[Dict]) -> List[Dict]:
+    def generate_qcm(self, text: str, images: List[Dict], difficulty: str = "intermediaire") -> List[Dict]:
         """
         Génère 10 questions QCM type EDN depuis un document
         
         Args:
             text: Texte extrait du document
             images: Liste d'images {data: base64, format: str}
+            difficulty: Niveau de difficulté ("facile", "intermediaire", "difficile")
             
         Returns:
             Liste de 10 questions au format:
@@ -39,8 +41,26 @@ class ClaudeQCMGenerator:
             }
         """
         
-        # Construction du prompt système
-        system_prompt = """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
+        # Construction du prompt système adapté au niveau
+        difficulty_prompts = {
+            "facile": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
+
+Ton rôle est de créer des QCM de niveau DÉBUTANT/RÉVISION qui :
+- Testent les connaissances FONDAMENTALES et définitions de base
+- Sont DIRECTS et sans pièges complexes
+- Se concentrent sur les concepts essentiels à mémoriser
+- Évitent les cas cliniques trop complexes
+- Permettent de valider l'acquisition des bases
+
+RÈGLES STRICTES :
+- Exactement 10 questions
+- 4 à 5 propositions par question
+- Questions claires et directes (niveau début DFASM)
+- Plusieurs bonnes réponses possibles par question
+- Formulation sans ambiguïté
+- Explications pédagogiques simples""",
+            
+            "intermediaire": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
 
 Ton rôle est de créer des QCM de haute qualité niveau DFASM (5e année de médecine) qui :
 - Testent la compréhension profonde et le raisonnement clinique
@@ -54,7 +74,27 @@ RÈGLES STRICTES :
 - 4 à 5 propositions par question
 - Plusieurs bonnes réponses possibles par question (typique des EDN)
 - Formulation claire et précise
-- Explications pédagogiques détaillées"""
+- Explications pédagogiques détaillées""",
+            
+            "difficile": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
+
+Ton rôle est de créer des QCM de niveau AVANCÉ/EXPERT qui :
+- Testent le raisonnement clinique approfondi et l'expertise
+- Incluent des CAS CLINIQUES COMPLEXES avec multiples comorbidités
+- Intègrent des pièges subtils et diagnostics différentiels
+- Requièrent une analyse fine et des connaissances pointues
+- Simulent des situations réelles difficiles en pratique clinique
+
+RÈGLES STRICTES :
+- Exactement 10 questions
+- 4 à 5 propositions par question
+- Plusieurs bonnes réponses possibles par question
+- Questions exigeantes avec nuances importantes
+- Cas cliniques élaborés et situations atypiques
+- Explications détaillées des raisonnements complexes"""
+        }
+        
+        system_prompt = difficulty_prompts.get(difficulty, difficulty_prompts["intermediaire"])
 
         # Construction du message utilisateur
         user_content = [
@@ -145,6 +185,7 @@ IMPORTANT : Réponds UNIQUEMENT avec le JSON, sans texte avant ou après."""
     def explain_answer(self, question: Dict, user_answers: List[int]) -> str:
         """
         Génère une explication personnalisée après soumission d'une réponse
+        OPTIMISÉ pour rapidité (tokens réduits)
         
         Args:
             question: Dict contenant la question complète
@@ -157,32 +198,23 @@ IMPORTANT : Réponds UNIQUEMENT avec le JSON, sans texte avant ou après."""
         correct_answers = set(question['correct_answers'])
         user_answers_set = set(user_answers)
         
-        # Déterminer quelles options sont correctes/incorrectes
-        correct_selected = user_answers_set & correct_answers
-        incorrect_selected = user_answers_set - correct_answers
-        correct_missed = correct_answers - user_answers_set
-        
+        # Prompt optimisé et plus concis pour réponse rapide
         prompt = f"""Question : {question['question']}
 
-Options proposées :
-{chr(10).join([f"{i}. {opt}" for i, opt in enumerate(question['options'])])}
+Réponses correctes : {', '.join([question['options'][i] for i in correct_answers])}
+Réponses de l'étudiant : {', '.join([question['options'][i] for i in user_answers]) if user_answers else 'Aucune'}
 
-Bonnes réponses : {', '.join([question['options'][i] for i in correct_answers])}
-Réponses de l'étudiant : {', '.join([question['options'][i] for i in user_answers]) if user_answers else 'Aucune réponse'}
+Feedback concis (max 150 mots) :
+1. Statut (✅/❌) + analyse rapide
+2. Explication médicale essentielle
+3. Point clé à retenir
 
-Génère un feedback PERSONNALISÉ et PÉDAGOGIQUE qui :
-1. Félicite les bonnes réponses sélectionnées (si applicable)
-2. Explique pourquoi les réponses incorrectes sélectionnées sont fausses (si applicable)
-3. Mentionne les bonnes réponses manquées (si applicable)
-4. Donne le raisonnement médical complet
-
-Ton feedback doit être bienveillant mais précis. Utilise des émojis (✅ ❌ 💡) pour la clarté.
-Format markdown."""
+Sois direct et pédagogue."""
         
         try:
             response = self.client.messages.create(
                 model=self.model,
-                max_tokens=1200,
+                max_tokens=600,  # Réduit de 1200 -> 600 pour vitesse ~2x
                 messages=[{
                     "role": "user",
                     "content": prompt
