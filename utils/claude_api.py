@@ -41,89 +41,40 @@ class ClaudeQCMGenerator:
             }
         """
         
-        # Construction du prompt système adapté au niveau
-        difficulty_prompts = {
-            "facile": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
-
-Ton rôle est de créer des QCM de niveau DÉBUTANT/RÉVISION qui :
-- Testent les connaissances FONDAMENTALES et définitions de base
-- Sont DIRECTS et sans pièges complexes
-- Se concentrent sur les concepts essentiels à mémoriser
-- Évitent les cas cliniques trop complexes
-- Permettent de valider l'acquisition des bases
-
-RÈGLES STRICTES :
-- Exactement 10 questions
-- 4 à 5 propositions par question
-- Questions claires et directes (niveau début DFASM)
-- Plusieurs bonnes réponses possibles par question
-- Formulation sans ambiguïté
-- Explications pédagogiques simples""",
-            
-            "intermediaire": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
-
-Ton rôle est de créer des QCM de haute qualité niveau DFASM (5e année de médecine) qui :
-- Testent la compréhension profonde et le raisonnement clinique
-- Sont représentatifs des questions EDN réelles
-- Évitent les pièges trop évidents ou ambiguïtés
-- Incluent des cas cliniques quand pertinent
-- Couvrent différents aspects du cours (physiopathologie, diagnostic, traitement, etc.)
-
-RÈGLES STRICTES :
-- Exactement 10 questions
-- 4 à 5 propositions par question
-- Plusieurs bonnes réponses possibles par question (typique des EDN)
-- Formulation claire et précise
-- Explications pédagogiques détaillées""",
-            
-            "difficile": """Tu es un expert en pédagogie médicale spécialisé dans la création de QCM pour les EDN (Examens Dématérialisés Nationaux) de médecine en France.
-
-Ton rôle est de créer des QCM de niveau AVANCÉ/EXPERT qui :
-- Testent le raisonnement clinique approfondi et l'expertise
-- Incluent des CAS CLINIQUES COMPLEXES avec multiples comorbidités
-- Intègrent des pièges subtils et diagnostics différentiels
-- Requièrent une analyse fine et des connaissances pointues
-- Simulent des situations réelles difficiles en pratique clinique
-
-RÈGLES STRICTES :
-- Exactement 10 questions
-- 4 à 5 propositions par question
-- Plusieurs bonnes réponses possibles par question
-- Questions exigeantes avec nuances importantes
-- Cas cliniques élaborés et situations atypiques
-- Explications détaillées des raisonnements complexes"""
+        # Construction du prompt système adapté au niveau (VERSION COURTE pour rapidité)
+        difficulty_instructions = {
+            "facile": "Niveau DÉBUTANT : questions directes sur connaissances fondamentales et définitions de base. Évite les cas complexes.",
+            "intermediaire": "Niveau DFASM standard : raisonnement clinique, cas simples, représentatif des EDN réels.",
+            "difficile": "Niveau EXPERT : cas cliniques complexes, pièges subtils, diagnostics différentiels, situations atypiques."
         }
         
-        system_prompt = difficulty_prompts.get(difficulty, difficulty_prompts["intermediaire"])
+        # Prompt système court et efficace
+        system_prompt = f"""Expert QCM médical EDN. {difficulty_instructions.get(difficulty, difficulty_instructions["intermediaire"])}
 
-        # Construction du message utilisateur
+Crée 10 QCM (4-5 options, plusieurs bonnes réponses). Couvre physiopathologie, diagnostic, traitement. Format JSON strict."""
+
+        # Construction du message utilisateur (VERSION COURTE)
         user_content = [
             {
                 "type": "text",
-                "text": f"""À partir du cours médical suivant, génère 10 questions QCM type EDN.
+                "text": f"""Génère 10 QCM EDN depuis ce cours médical.
 
 COURS :
 {text}
 
-CONSIGNES :
-1. Crée des questions qui couvrent l'ensemble du cours
-2. Varie les types de questions (connaissances, cas cliniques, raisonnement)
-3. Assure-toi que plusieurs réponses sont correctes pour chaque question
-4. Fournis des explications détaillées et pédagogiques
-
-FORMAT DE SORTIE (JSON strict) :
+FORMAT JSON strict :
 {{
     "questions": [
         {{
-            "question": "Énoncé complet de la question",
-            "options": ["Option A", "Option B", "Option C", "Option D", "Option E"],
+            "question": "Énoncé",
+            "options": ["A", "B", "C", "D", "E"],
             "correct_answers": [0, 2],
-            "explanation": "Explication détaillée des bonnes et mauvaises réponses"
+            "explanation": "Explication détaillée"
         }}
     ]
 }}
 
-IMPORTANT : Réponds UNIQUEMENT avec le JSON, sans texte avant ou après."""
+IMPORTANT : JSON uniquement, pas de texte autour."""
             }
         ]
         
@@ -202,7 +153,7 @@ IMPORTANT : Réponds UNIQUEMENT avec le JSON, sans texte avant ou après."""
         prompt = f"""Question : {question['question']}
 
 Réponses correctes : {', '.join([question['options'][i] for i in correct_answers])}
-Réponses de l'étudiant : {', '.join([question['options'][i] for i in user_answers]) if user_answers else 'Aucune'}
+Réponses données : {', '.join([question['options'][i] for i in user_answers]) if user_answers else 'Aucune'}
 
 Feedback concis (max 150 mots) :
 1. Statut (✅/❌) + analyse rapide
