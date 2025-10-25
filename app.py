@@ -129,7 +129,7 @@ def main():
         **Fonctionnalités :**
         - 📄 Upload Word/PDF avec images
         - 🤖 10 questions générées par IA
-        - ✅ Feedback immédiat
+        - ✅ Feedback immédiat ⚡ **RAPIDE**
         - 📊 Récapitulatif personnalisé
         - 📥 Export PDF
         - 🔄 Régénération possible
