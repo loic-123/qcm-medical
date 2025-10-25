@@ -1,166 +1,164 @@
-# 🏥 QCM Médical - Application EDN
+# 🏥 QCM Médical EDN
 
-Application web intelligente pour générer des **QCM type EDN** depuis vos cours de médecine, propulsée par **Claude Haiku 4.5**.
+> Application web intelligente pour générer des **QCM type EDN** depuis vos cours de médecine, propulsée par **Claude Haiku 4.5**
 
-## 🎯 Fonctionnalités
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/streamlit-1.32-red.svg)](https://streamlit.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### ✨ Génération Intelligente
-- 📄 **Upload Word/PDF** : Glissez-déposez vos cours (texte + images)
-- 🤖 **IA Médicale** : 10 questions pertinentes générées automatiquement
-- 📚 **Format EDN** : Réponses multiples possibles (format officiel)
-- 🎓 **Niveau DFASM** : Questions adaptées 5e année de médecine
+---
+
+## 📋 Table des Matières
+
+- [Fonctionnalités](#-fonctionnalités)
+- [Installation](#-installation)
+- [Utilisation](#-utilisation)
+- [Déploiement](#️-déploiement-sur-streamlit-cloud)
+- [Structure du Projet](#-structure-du-projet)
+- [Coûts](#-coûts-estimés)
+- [Personnalisation](#-personnalisation)
+- [Support](#-support)
+
+---
+
+## ✨ Fonctionnalités
+
+### 🎯 Génération Intelligente
+
+- **📄 Upload Word/PDF** : Glissez-déposez vos cours (texte + images)
+- **🤖 IA Médicale** : 10 questions pertinentes générées automatiquement
+- **📚 Format EDN** : Réponses multiples possibles (format officiel)
+- **🎓 Niveau DFASM** : Questions adaptées 5e année de médecine
 
 ### 💡 Apprentissage Interactif
-- ✅ **Feedback immédiat** : Explication détaillée après chaque question
-- 📊 **Récapitulatif personnalisé** : Analyse de vos forces et faiblesses
-- 🔄 **Régénération** : Créez plusieurs QCM depuis le même cours
+
+- **✅ Feedback immédiat** : Explication détaillée après chaque question
+- **📊 Récapitulatif personnalisé** : Analyse de vos forces et faiblesses
+- **🔄 Régénération** : Créez plusieurs QCM depuis le même cours
 
 ### 📥 Export Professionnel
-- 📄 **PDF vierge** : Pour s'entraîner
-- 📗 **PDF avec corrigé** : Pour réviser
-- 📊 **PDF de résultats** : Votre performance détaillée
+
+- **📄 PDF vierge** : Pour s'entraîner
+- **📗 PDF avec corrigé** : Pour réviser
+- **📊 PDF de résultats** : Votre performance détaillée
 
 ---
 
 ## 🚀 Installation
 
-### 1. Prérequis
+### Prérequis
+
 - Python 3.9 ou supérieur
 - Un compte Anthropic avec accès API
 
-### 2. Cloner/Télécharger le projet
+### Étapes
+
+1. **Cloner le repository**
 
 ```bash
-# Si vous avez git
-git clone <url-du-repo>
+git clone https://github.com/loic-123/qcm-medical.git
 cd qcm-medical
-
-# Sinon, téléchargez et décompressez le dossier
 ```
 
-### 3. Installer les dépendances
+2. **Créer un environnement virtuel** (recommandé)
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Mac/Linux
+# ou
+venv\Scripts\activate  # Windows
+```
+
+3. **Installer les dépendances**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configuration de la clé API
+4. **Obtenir votre clé API Anthropic**
 
-**Option A : Via l'interface Streamlit (Recommandé)**
-- Pas besoin de fichier .env
-- Entrez directement votre clé API dans l'interface
+- Créez un compte sur [console.anthropic.com](https://console.anthropic.com/)
+- Allez dans **Settings** → **API Keys**
+- Créez une clé (commence par `sk-ant-`)
 
-**Option B : Via fichier .env (Optionnel)**
-```bash
-# Copier le fichier exemple
-cp .env.example .env
-
-# Éditer avec votre clé
-nano .env  # ou utilisez votre éditeur préféré
-```
-
-### 5. Obtenir votre clé API Anthropic
-
-1. Créez un compte sur [console.anthropic.com](https://console.anthropic.com/)
-2. Allez dans **Settings** → **API Keys**
-3. Cliquez sur **Create Key**
-4. Copiez votre clé (commence par `sk-ant-`)
-
-⚠️ **Important** : Gardez votre clé secrète !
+> ⚠️ **Important** : Ne partagez jamais votre clé API !
 
 ---
 
-## 💻 Utilisation Locale
+## 💻 Utilisation
 
-### Lancer l'application
+### Lancement
 
 ```bash
 streamlit run app.py
 ```
 
-L'application s'ouvre automatiquement dans votre navigateur à `http://localhost:8501`
+L'application s'ouvre automatiquement à `http://localhost:8501`
 
-### Workflow complet
+### Workflow
 
-1. **📤 Onglet "Upload & Génération"**
-   - Entrez votre clé API dans la barre latérale
-   - Glissez-déposez un fichier Word (.docx) ou PDF
-   - Cliquez sur "🚀 Générer le QCM"
-   - Attendez 30-60 secondes
+#### 1️⃣ Upload & Génération
 
-2. **📝 Onglet "QCM Interactif"**
-   - Lisez chaque question
-   - Cochez **toutes** les bonnes réponses (plusieurs possibles)
-   - Cliquez sur "✅ Valider ma réponse"
-   - Lisez le feedback détaillé de Claude
-   - Passez à la question suivante
+- Entrez votre clé API dans la barre latérale
+- Glissez-déposez un fichier Word (.docx) ou PDF
+- Cliquez sur **🚀 Générer le QCM**
+- Attendez 30-60 secondes
 
-3. **📊 Onglet "Résultats"**
-   - Consultez votre score global
-   - Lisez le récapitulatif personnalisé
-   - Exportez en PDF (3 versions disponibles)
-   - Régénérez un nouveau QCM si souhaité
+#### 2️⃣ QCM Interactif
+
+- Lisez chaque question
+- Cochez toutes les bonnes réponses
+- Validez et lisez le feedback de Claude
+- Passez à la question suivante
+
+#### 3️⃣ Résultats
+
+- Consultez votre score
+- Lisez le récapitulatif personnalisé
+- Exportez en PDF
+- Régénérez un nouveau QCM
 
 ---
 
 ## ☁️ Déploiement sur Streamlit Cloud
 
-### Étape 1 : Préparer votre code
-
-1. Créez un compte GitHub (si pas déjà fait)
-2. Créez un nouveau repository public
-3. Uploadez tous les fichiers **SAUF** :
-   - ❌ `.env` (contient votre clé API)
-   - ❌ `__pycache__` et autres fichiers temporaires
+### Étape 1 : Préparer le Code
 
 ```bash
-# Exemple avec git
 git init
 git add .
 git commit -m "Initial commit"
-git remote add origin <votre-url-github>
+git remote add origin https://github.com/votre-username/qcm-medical.git
 git push -u origin main
 ```
 
-### Étape 2 : Déployer sur Streamlit Cloud
+> ⚠️ **Ne commitez JAMAIS votre fichier `.env` avec la clé API !**
+
+### Étape 2 : Déployer
 
 1. Allez sur [share.streamlit.io](https://share.streamlit.io)
-2. Connectez-vous avec votre compte GitHub
+2. Connectez-vous avec GitHub
 3. Cliquez sur **New app**
-4. Sélectionnez :
-   - **Repository** : votre repo GitHub
-   - **Branch** : main (ou master)
-   - **Main file path** : `app.py`
-5. Cliquez sur **Deploy**
+4. Configurez :
+   - **Repository** : `votre-username/qcm-medical`
+   - **Branch** : `main`
+   - **Main file** : `app.py`
+5. Déployez !
 
-### Étape 3 : Configuration (IMPORTANT !)
+### Étape 3 : Configurer les Secrets
 
-⚠️ **NE METTEZ PAS votre clé API dans le code !**
+Dans **Settings** → **Secrets**, ajoutez :
 
-**Option 1 : Saisie directe (Recommandé pour 1 utilisateur)**
-- L'utilisateur entre sa clé API directement dans l'interface
-- Pas de configuration supplémentaire nécessaire
-
-**Option 2 : Secrets Streamlit (Pour partager l'app)**
-1. Dans Streamlit Cloud, allez dans **Settings** → **Secrets**
-2. Ajoutez :
 ```toml
 ANTHROPIC_API_KEY = "sk-ant-votre-cle-ici"
 ```
-3. Modifiez `app.py` pour lire ce secret :
-```python
-# Dans la fonction main(), remplacez la ligne api_key par :
-api_key = st.secrets.get("ANTHROPIC_API_KEY", "") or st.text_input(...)
-```
 
-### Étape 4 : Partager l'application
+### Étape 4 : Partager
 
-Une fois déployée, vous obtenez une URL comme :
+Votre app est en ligne à :
 ```
-https://votre-app-qcm-medical.streamlit.app
+https://votre-username-qcm-medical.streamlit.app
 ```
-
-Partagez cette URL avec votre copine ! 🎉
 
 ---
 
@@ -168,15 +166,17 @@ Partagez cette URL avec votre copine ! 🎉
 
 ```
 qcm-medical/
-├── app.py                    # 🎯 Application principale
-├── requirements.txt          # 📦 Dépendances Python
-├── .env.example             # 🔑 Exemple configuration
-├── README.md                # 📖 Ce fichier
+│
+├── app.py                      # Application principale Streamlit
+├── requirements.txt            # Dépendances Python
+├── README.md                   # Documentation
+├── .gitignore                  # Fichiers à ignorer
+│
 └── utils/
     ├── __init__.py
-    ├── document_parser.py   # 📄 Extraction Word/PDF
-    ├── claude_api.py        # 🤖 Gestion API Claude
-    └── pdf_export.py        # 📥 Export PDF
+    ├── document_parser.py      # Extraction Word/PDF
+    ├── claude_api.py           # Gestion API Claude
+    └── pdf_export.py           # Export PDF
 ```
 
 ---
@@ -185,111 +185,135 @@ qcm-medical/
 
 Avec **Claude Haiku 4.5** (modèle le plus économique) :
 
-- **Input** : $0.80 / million de tokens (~$0.0008 / 1000 tokens)
-- **Output** : $4.00 / million de tokens (~$0.004 / 1000 tokens)
+| Type | Prix | Usage |
+|------|------|-------|
+| **Input** | $0.80 / M tokens | Lecture du cours |
+| **Output** | $4.00 / M tokens | Génération questions |
 
-**Estimation par session :**
-- Upload d'un cours de 5000 mots + 2 images : ~8000 tokens input
-- Génération de 10 questions : ~3000 tokens output
+### Par Session
+
+- Upload cours (5000 mots + images) : ~8000 tokens input
+- Génération 10 questions : ~3000 tokens output
 - Feedback + récapitulatif : ~2000 tokens output
 
-**Total ≈ $0.03 par session complète** (moins de 3 centimes)
+**Total ≈ $0.03 par session** (3 centimes) 💰
 
-💡 **Très économique pour un usage personnel !**
-
----
-
-## 🛠️ Dépannage
-
-### Problème : "Module not found"
-```bash
-pip install -r requirements.txt --upgrade
-```
-
-### Problème : "Invalid API key"
-- Vérifiez que votre clé commence par `sk-ant-`
-- Créez une nouvelle clé sur console.anthropic.com
-- Vérifiez que vous avez des crédits API
-
-### Problème : "Erreur extraction PDF"
-```bash
-pip install PyMuPDF --upgrade
-```
-
-### Problème : Génération lente
-- Normal ! La génération prend 30-60 secondes
-- C'est le temps nécessaire à Claude pour analyser et générer des questions de qualité
-
-### Problème : Questions en anglais
-- Claude peut parfois générer en anglais
-- Ajoutez "Génère en français" dans le prompt système (ligne 32 de `claude_api.py`)
+> 💡 Très économique pour un usage personnel !
 
 ---
 
 ## 🎨 Personnalisation
 
-### Modifier le nombre de questions
+### Modifier le Nombre de Questions
 
-Dans `claude_api.py`, ligne 28, changez :
+Dans `utils/claude_api.py`, ligne 28 :
+
 ```python
-"Ton rôle est de créer des QCM de haute qualité..."
-# Remplacez "Exactement 10 questions" par le nombre souhaité
+"Exactement 10 questions"  # Changez le nombre ici
 ```
 
-Et dans `app.py`, ligne 136, adaptez le texte d'interface.
+### Changer le Modèle Claude
 
-### Modifier le nombre de propositions
+Dans `utils/claude_api.py`, ligne 19 :
 
-Dans `claude_api.py`, ligne 30 :
 ```python
-# Changez "4 à 5 propositions" par "3 à 6 propositions" (par exemple)
-```
-
-### Changer le modèle Claude
-
-Dans `claude_api.py`, ligne 19 :
-```python
-self.model = "claude-haiku-4-20250514"  # Haiku 4.5 (économique)
+self.model = "claude-haiku-4-5"  # Économique ⚡
 # Alternatives :
-# self.model = "claude-sonnet-4-20250514"  # Sonnet 4 (plus performant mais plus cher)
-# self.model = "claude-opus-4-20250514"    # Opus 4 (le meilleur mais coûteux)
+# "claude-sonnet-4-5"  # Plus performant 🧠
+# "claude-opus-4"      # Le meilleur 🎯
 ```
+
+### Modifier le Style des Questions
+
+Dans `utils/claude_api.py`, lignes 28-80, personnalisez le prompt système.
+
+---
+
+## 🛠️ Dépannage
+
+<details>
+<summary><b>❌ "Module not found"</b></summary>
+
+```bash
+pip install -r requirements.txt --upgrade
+```
+</details>
+
+<details>
+<summary><b>❌ "Invalid API key"</b></summary>
+
+- Vérifiez que votre clé commence par `sk-ant-`
+- Créez une nouvelle clé sur [console.anthropic.com](https://console.anthropic.com/)
+- Vérifiez vos crédits API
+</details>
+
+<details>
+<summary><b>❌ Erreur extraction PDF</b></summary>
+
+```bash
+pip install PyMuPDF --upgrade
+```
+</details>
+
+<details>
+<summary><b>⏱️ Génération lente</b></summary>
+
+Normal ! La génération prend 30-60 secondes pour garantir des questions de qualité.
+</details>
 
 ---
 
 ## 🤝 Support
 
-### Ressources utiles
+### Ressources
+
 - [Documentation Claude](https://docs.anthropic.com/)
 - [Documentation Streamlit](https://docs.streamlit.io/)
 - [Forum Streamlit](https://discuss.streamlit.io/)
 
-### Questions fréquentes
+### Questions Fréquentes
 
-**Q : Puis-je utiliser l'app hors ligne ?**
-R : Non, elle nécessite une connexion internet pour l'API Claude.
+**Q : Puis-je utiliser l'app hors ligne ?**  
+R : Non, connexion internet nécessaire pour l'API Claude.
 
-**Q : Les données sont-elles sauvegardées ?**
+**Q : Les données sont-elles sauvegardées ?**  
 R : Non, tout est en mémoire. Exportez en PDF pour conserver vos résultats.
 
-**Q : Combien d'utilisateurs peuvent l'utiliser ?**
-R : Sur Streamlit Cloud gratuit : illimité, mais ressources partagées. Pour un usage intensif, envisagez un plan payant.
+**Q : Les images sont-elles analysées ?**  
+R : Oui ! Claude utilise les images comme contexte pour générer des questions.
 
-**Q : Les images sont-elles analysées ?**
-R : Oui ! Claude utilise les images comme contexte pour générer des questions pertinentes.
+---
+
+## 📊 Technologies Utilisées
+
+- **[Streamlit](https://streamlit.io)** - Interface web
+- **[Claude API](https://www.anthropic.com)** - Intelligence artificielle
+- **[PyMuPDF](https://pymupdf.readthedocs.io/)** - Traitement PDF
+- **[python-docx](https://python-docx.readthedocs.io/)** - Traitement Word
+- **[ReportLab](https://www.reportlab.com/)** - Génération PDF
 
 ---
 
 ## 📜 Licence
 
-Ce projet est fourni tel quel pour un usage personnel ou éducatif.
+MIT License - Libre d'utilisation pour un usage personnel ou éducatif.
 
 ---
 
-## 🎉 Bon courage pour les EDN !
+## 🎉 Contributeurs
 
 Créé avec ❤️ pour faciliter les révisions médicales.
 
-N'hésitez pas à adapter l'application selon vos besoins ! 🚀
-#   m e d _ q u e s t i o n s  
- 
+---
+
+## ⭐ Soutenez le Projet
+
+Si cette application vous aide dans vos révisions, n'hésitez pas à :
+
+- ⭐ Star le projet sur GitHub
+- 🐛 Signaler des bugs via [Issues](https://github.com/loic-123/qcm-medical/issues)
+- 💡 Proposer des améliorations
+
+---
+
+**Bon courage pour les EDN !** 🚀
